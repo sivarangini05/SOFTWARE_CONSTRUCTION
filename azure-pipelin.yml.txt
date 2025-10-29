@@ -1,0 +1,32 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+
+# Install Python
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.10'
+    addToPath: true
+
+# Install dependencies
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+# Run tests
+- script: |
+    pytest tests/
+  displayName: 'Run unit tests'
+
+# Deploy (if using Azure Web App for your Attendance project)
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'YourServiceConnectionName'
+    appName: 'attendance-sms-app'
+    package: '$(System.DefaultWorkingDirectory)'
